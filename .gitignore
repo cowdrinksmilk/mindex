@@ -1,0 +1,17 @@
+.gradle/
+build/
+out/
+bin/
+
+.vscode/
+.idea/
+*.iml
+
+oracleJdk-*/
+jdk-*/
+
+*.class
+*.log
+*.zip
+
+entire_project.txt
