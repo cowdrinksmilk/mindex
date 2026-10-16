@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.mindex.challenge.service.impl.CompensationServiceImplTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-16T02:45:43" hostname="MARY-PC" time="0.795">
+  <properties/>
+  <testcase name="testNegativeSalaryReturnsBadRequest" classname="com.mindex.challenge.service.impl.CompensationServiceImplTest" time="0.615"/>
+  <testcase name="testDuplicateCompensationReturnsConflict" classname="com.mindex.challenge.service.impl.CompensationServiceImplTest" time="0.048"/>
+  <testcase name="testUnknownEmployeeReturnsNotFound" classname="com.mindex.challenge.service.impl.CompensationServiceImplTest" time="0.003"/>
+  <testcase name="testCreateAndReadCompensation" classname="com.mindex.challenge.service.impl.CompensationServiceImplTest" time="0.008"/>
+  <testcase name="testCompensationEndpoints" classname="com.mindex.challenge.service.impl.CompensationServiceImplTest" time="0.121"/>
+  <system-out><![CDATA[22:45:41.452 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.mindex.challenge.service.impl.CompensationServiceImplTest]: CompensationServiceImplTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+22:45:41.556 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.mindex.challenge.ChallengeApplication for test class com.mindex.challenge.service.impl.CompensationServiceImplTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.3)
+
+2026-10-15T22:45:41.892-04:00  INFO 44500 --- [    Test worker] c.m.c.s.i.CompensationServiceImplTest    : Starting CompensationServiceImplTest using Java 17.0.20.1 with PID 44500 (started by Mary in C:\Users\Mary\mindex\mindex-code-challenge)
+2026-10-15T22:45:41.894-04:00 DEBUG 44500 --- [    Test worker] c.m.c.s.i.CompensationServiceImplTest    : Running with Spring Boot v3.2.3, Spring v6.1.4
+2026-10-15T22:45:41.894-04:00  INFO 44500 --- [    Test worker] c.m.c.s.i.CompensationServiceImplTest    : No active profile set, falling back to 1 default profile: "default"
+2026-10-15T22:45:42.223-04:00  INFO 44500 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-10-15T22:45:42.289-04:00  INFO 44500 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 61 ms. Found 2 MongoDB repository interfaces.
+2026-10-15T22:45:42.745-04:00  INFO 44500 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-10-15T22:45:42.754-04:00  INFO 44500 --- [    Test worker] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-15T22:45:42.755-04:00  INFO 44500 --- [    Test worker] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-10-15T22:45:42.800-04:00  INFO 44500 --- [    Test worker] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-15T22:45:42.801-04:00  INFO 44500 --- [    Test worker] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 894 ms
+2026-10-15T22:45:43.044-04:00  INFO 44500 --- [    Test worker] de.bwaldvogel.mongo.MongoServer          : started MongoServer(port: 58284, ssl: false)
+2026-10-15T22:45:43.159-04:00  INFO 44500 --- [    Test worker] org.mongodb.driver.client                : MongoClient with metadata {"driver": {"name": "mongo-java-driver|sync", "version": "4.11.1"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/17.0.20.1+1"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=null, transportSettings=null, streamFactoryFactory=null, commandListeners=[], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@16e1219f, com.mongodb.Jep395RecordCodecProvider@13f40d71, com.mongodb.KotlinCodecProvider@73a845cb]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[127.0.0.1:58284], srvServiceName=mongodb, mode=SINGLE, requiredClusterType=UNKNOWN, requiredReplicaSetName='null', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=false, invalidHostNameAllowed=false, context=null}, applicationName='null', compressorList=[], uuidRepresentation=UNSPECIFIED, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-10-15T22:45:43.173-04:00  INFO 44500 --- [-server-worker1] d.b.mongo.wire.MongoWireProtocolHandler  : client [id: 0x29e4c1d4, L:/127.0.0.1:58284 - R:/127.0.0.1:58286] connected
+2026-10-15T22:45:43.173-04:00  INFO 44500 --- [-server-worker2] d.b.mongo.wire.MongoWireProtocolHandler  : client [id: 0x0f3d4f9f, L:/127.0.0.1:58284 - R:/127.0.0.1:58285] connected
+2026-10-15T22:45:43.219-04:00  INFO 44500 --- [127.0.0.1:58284] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:58284, type=STANDALONE, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=6, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=null, roundTripTimeNanos=61884700}
+2026-10-15T22:45:43.535-04:00  INFO 44500 --- [-server-worker3] d.b.mongo.wire.MongoWireProtocolHandler  : client [id: 0xc8437c93, L:/127.0.0.1:58284 - R:/127.0.0.1:58287] connected
+2026-10-15T22:45:43.562-04:00  INFO 44500 --- [-server-worker3] d.b.mongo.backend.AbstractMongoBackend   : created database test
+2026-10-15T22:45:43.566-04:00  INFO 44500 --- [-server-worker3] d.b.mongo.backend.AbstractMongoDatabase  : adding unique _id index for collection employee
+2026-10-15T22:45:43.571-04:00  INFO 44500 --- [-server-worker3] d.b.mongo.backend.AbstractMongoDatabase  : created collection test.employee
+2026-10-15T22:45:43.850-04:00  INFO 44500 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 58288 (http) with context path ''
+2026-10-15T22:45:43.855-04:00  INFO 44500 --- [    Test worker] c.m.c.s.i.CompensationServiceImplTest    : Started CompensationServiceImplTest in 2.145 seconds (process running for 2.901)
+2026-10-15T22:45:44.517-04:00  INFO 44500 --- [-server-worker3] d.b.mongo.backend.AbstractMongoDatabase  : adding unique _id index for collection compensation
+2026-10-15T22:45:44.518-04:00  INFO 44500 --- [-server-worker3] d.b.mongo.backend.AbstractMongoDatabase  : created collection test.compensation
+2026-10-15T22:45:44.610-04:00  INFO 44500 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-15T22:45:44.610-04:00  INFO 44500 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-15T22:45:44.611-04:00  INFO 44500 --- [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
