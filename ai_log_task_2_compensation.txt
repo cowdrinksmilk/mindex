@@ -1,0 +1,254 @@
+MINDEX CODE CHALLENGE - TASK 2 AI INTERACTION SUMMARY
+COMPENSATION
+
+PURPOSE
+This log summarizes how I used AI while planning and validating Task 2. The prompts are rewritten around the engineering decisions I wanted to evaluate before and during implementation. Routine Git cleanup and unrelated environment troubleshooting are omitted so the log focuses on architecture, security, persistence, performance, testing, and verified behavior.
+
+======================================================================
+1. REQUIREMENT
+======================================================================
+
+Create Compensation containing at least:
+
+- salary
+- effectiveDate
+
+Each Compensation must be associated with a specific Employee. Add REST endpoints to create and read Compensation through the persistence layer.
+
+======================================================================
+2. INITIAL APPROACH AND DESIGN REVIEW
+======================================================================
+
+MY INITIAL THINKING
+
+I planned to follow the same Controller -> Service -> Service Implementation -> Repository architecture already used by Employee. Unlike ReportingStructure, Compensation is persistent state, so I expected to add a dedicated repository. I also wanted the service to validate the employee against EmployeeRepository rather than trusting Employee fields submitted by the client.
+
+MY PROMPT
+
+"My initial Task 2 approach is to add a separate Compensation document and repository while keeping the existing controller/service/repository architecture. Compensation would reference an Employee, and the service would resolve the employeeId against EmployeeRepository before saving anything. Review this approach for security, performance, maintainability, and consistency with the starter project. I especially want to understand the Employee association, persistence strategy, validation boundaries, duplicate-record behavior, and what I should test. Please challenge weaknesses in the approach rather than redesigning the whole application."
+
+AI FEEDBACK
+
+The approach fit the existing architecture. Compensation should have its own repository because it is persistent state. Validation and business rules belong in the service layer, while the controller should remain focused on HTTP routing.
+
+Resolving employeeId through EmployeeRepository prevents the API from treating arbitrary client-supplied Employee fields as authoritative.
+
+MY DECISION
+
+I kept Compensation as a separate persisted document, used the existing EmployeeRepository to establish the employee association, and kept HTTP, business logic, and persistence responsibilities separated.
+
+======================================================================
+3. DATA-MODELING REVIEW
+======================================================================
+
+MY PROMPT
+
+"Before I finalize the Compensation model, review the data types and relationship choices. I am considering BigDecimal for salary, LocalDate for effectiveDate, a generated UUID for compensationId, and an Employee association resolved from the database. Are these choices accurate for the domain, and what security or persistence issues should I consider before implementation?"
+
+AI FEEDBACK
+
+- BigDecimal is appropriate for monetary values because it avoids binary floating-point precision issues.
+- LocalDate accurately represents an effective calendar date without implying a time of day.
+- A generated UUID provides an independent Compensation identifier.
+- The client can submit employeeId, but the service should resolve the authoritative Employee record instead of trusting submitted names, departments, or other Employee properties.
+
+MY DECISION
+
+I used:
+
+- String compensationId generated with UUID
+- Employee employee
+- BigDecimal salary
+- LocalDate effectiveDate
+
+======================================================================
+4. PERSISTENCE AND QUERY REVIEW
+======================================================================
+
+MY PROMPT
+
+"I want the Compensation persistence layer to stay simple and avoid unnecessary custom MongoDB queries. What is the cleanest Spring Data repository method for finding Compensation by the associated employeeId? Also, what assumption am I making if the repository returns a single Compensation per employee, and how would the design differ if compensation history were required?"
+
+AI FEEDBACK
+
+Spring Data can derive a nested-property query such as:
+
+Optional<Compensation> findByEmployee_EmployeeId(String employeeId);
+
+Returning a single Optional<Compensation> makes an explicit domain assumption that only one current Compensation record exists per employee. If historical compensation were required, the model should allow multiple records and retrieval should define how effectiveDate determines the appropriate record.
+
+MY DECISION
+
+For the challenge, I treated Compensation as one current record per Employee and explicitly reject duplicate creation. I documented history/versioning as a possible production extension instead of silently assuming the current model supports it.
+
+======================================================================
+5. VALIDATION AND SECURITY REVIEW
+======================================================================
+
+MY PROMPT
+
+"Before I implement the service, define a clear validation and failure contract. Which checks should happen server-side, what status codes make sense, and how can I prevent malformed or untrusted data from being persisted? Please review missing employee IDs, unknown employees, missing or negative salaries, missing effective dates, duplicate Compensation, and reads where no Compensation exists. Also call out any security concerns that are outside the challenge scope but important for real compensation data."
+
+AI FEEDBACK
+
+Recommended behavior:
+
+- Missing request body -> 400 Bad Request
+- Missing employee/employeeId -> 400 Bad Request
+- Unknown employee -> 404 Not Found
+- Missing salary -> 400 Bad Request
+- Negative salary -> 400 Bad Request
+- Missing effectiveDate -> 400 Bad Request
+- Duplicate current Compensation -> 409 Conflict
+- Missing Compensation on read -> 404 Not Found
+
+For a production compensation API, authentication and authorization would be critical because payroll data is sensitive. Request/response DTOs, stronger ID validation, audit logging, and database-level uniqueness could also strengthen the design.
+
+MY DECISION
+
+I implemented the challenge-level validation in the service and resolved Employee from stored data. I did not add a full security/authentication subsystem because it was not part of the provided application, but I documented it as a production requirement.
+
+======================================================================
+6. IMPLEMENTATION REVIEW
+======================================================================
+
+MY PROMPT
+
+"Based on these decisions, review the implementation structure for consistency with the starter project. I want complete, focused classes using constructor injection, with short comments only around non-obvious behavior. Check that the controller remains thin, business validation stays in the service, and database access stays in repositories."
+
+AI FEEDBACK
+
+The intended flow was:
+
+POST /compensation
+    -> CompensationController
+    -> CompensationService
+    -> CompensationServiceImpl
+    -> validate input
+    -> verify Employee through EmployeeRepository
+    -> check/save through CompensationRepository
+    -> return persisted Compensation
+
+GET /compensation/{employeeId}
+    -> CompensationController
+    -> CompensationService
+    -> CompensationServiceImpl
+    -> verify Employee
+    -> CompensationRepository lookup
+    -> return Compensation or 404
+
+======================================================================
+7. TEST DESIGN
+======================================================================
+
+MY INITIAL TEST PLAN
+
+I wanted to prove persistence and endpoint behavior while also covering invalid data. I also wanted tests isolated so a stored Compensation from one test could not affect another.
+
+MY PROMPT
+
+"Review my Task 2 test strategy. I want a compact suite that proves persistence works through both the service and REST endpoints, verifies important validation failures, and isolates database state between tests. Which cases give the strongest coverage for this challenge without turning it into a full production test suite?"
+
+AI FEEDBACK
+
+A focused suite was recommended using CompensationRepository.deleteAll() before each test. The selected cases were:
+
+1. Create and read valid Compensation through the service.
+2. POST and GET endpoint behavior.
+3. Unknown Employee -> 404.
+4. Negative salary -> 400.
+5. Duplicate current Compensation -> 409.
+
+Additional production-oriented tests could cover missing fields, malformed identifiers, concurrency around duplicate creation, authorization, and compensation history.
+
+MY DECISION
+
+I kept the five focused tests and isolated Compensation data before each test.
+
+======================================================================
+8. VERIFIED AUTOMATED RESULTS
+======================================================================
+
+I verified that all six Task 2 files were in their expected main/test source locations:
+
+- Compensation.java
+- CompensationRepository.java
+- CompensationService.java
+- CompensationServiceImpl.java
+- CompensationController.java
+- CompensationServiceImplTest.java
+
+I ran:
+
+.\gradlew.bat clean test --tests "com.mindex.challenge.service.impl.CompensationServiceImplTest"
+
+Verified result:
+
+BUILD SUCCESSFUL in 12s
+5 actionable tasks: 5 executed
+
+All five Task 2 automated tests passed.
+
+======================================================================
+9. MANUAL RUNTIME VALIDATION
+======================================================================
+
+MY PROMPT
+
+"The automated tests pass. What manual checks should I run to validate the full HTTP-to-persistence flow outside the test harness? I want to confirm Spring starts correctly, both repositories are discovered, POST actually persists Compensation, and GET can retrieve the same stored record."
+
+VERIFIED RESULTS
+
+The application started successfully with Java 17.0.20.1. Tomcat started on port 8080, and Spring discovered two MongoDB repository interfaces.
+
+A manual POST /compensation succeeded for employeeId:
+
+16a596ae-edd3-4847-99fe-c4518e82c86f
+
+The response included:
+
+- generated compensationId: 39588051-5361-437b-a2ad-a3ed92536df9
+- stored Employee data for John Lennon
+- salary: 120000
+- effectiveDate: 2026-10-15
+
+This verified that the request crossed the HTTP, service, repository, and persistence layers successfully.
+
+The ID-only direct-report references included null values for fields not present in the supplied nested Employee references, which matched the starter data representation.
+
+======================================================================
+10. FINAL SECURITY / SCALABILITY REVIEW
+======================================================================
+
+MY PROMPT
+
+"Perform a final scope-aware review of Task 2. Which security and correctness risks are addressed by the challenge implementation, and what would I still need before exposing compensation data in a production employee system? I want to be able to explain clearly why I did not add every production control to this coding challenge."
+
+AI FEEDBACK
+
+Addressed in the challenge implementation:
+
+- Server-side validation for required compensation data.
+- Rejection of negative salary.
+- Verification that the referenced Employee exists.
+- Authoritative Employee lookup rather than trusting client-provided Employee fields.
+- Explicit duplicate behavior for the one-current-record model.
+- Clear 400/404/409 failures.
+- Persistence and endpoint tests.
+
+Production hardening to consider:
+
+- Authentication and fine-grained authorization for sensitive compensation data.
+- Dedicated request/response DTOs to limit field exposure.
+- Stronger employeeId format/length constraints.
+- Database-level uniqueness for concurrency-safe duplicate prevention.
+- Audit trails for compensation reads/changes without unnecessarily logging salary values.
+- Historical/versioned Compensation if effective-date history is a business requirement.
+- Centralized validation and exception handling.
+- Operational controls such as rate limiting and monitoring where appropriate.
+
+======================================================================
+11. REFLECTION
+======================================================================
+
+AI was most useful for reviewing the assumptions behind data modeling, validation, and persistence before I considered the implementation complete. I used the recommendations to pressure-test the design, but kept the solution intentionally aligned with the starter project. I personally ran the Task 2 tests and application and manually verified the POST flow. Production security controls were documented separately so they could be discussed without overengineering the coding challenge.
