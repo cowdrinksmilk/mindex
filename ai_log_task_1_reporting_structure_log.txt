@@ -1,0 +1,143 @@
+MINDEX CODE CHALLENGE - TASK 1 AI DESIGN LOG
+REPORTING STRUCTURE
+
+PURPOSE
+This log documents how I used AI as a design and review tool for Task 1. The prompts are rewritten to clearly capture the questions I was trying to answer around architecture, correctness, security, scalability, and testing. The implementation results remain based on what I actually verified.
+
+======================================================================
+1. TASK REQUIREMENT
+======================================================================
+
+Create a ReportingStructure type containing employee and numberOfReports. numberOfReports must include every distinct direct and indirect report under the requested employee. Add a REST endpoint that accepts employeeId and computes the result on demand without persisting it.
+
+======================================================================
+2. ARCHITECTURE AND IMPLEMENTATION PLANNING
+======================================================================
+
+MY PROMPT
+
+"Before I implement Task 1, review the existing Spring Boot architecture and recommend the cleanest way to add ReportingStructure without overengineering the starter project. I want to preserve separation of concerns between the controller, service, repository, and data layers. Please also identify edge cases in traversing an employee hierarchy, explain whether recursion is appropriate, and call out any security, performance, or maintainability risks I should account for."
+
+AI RESPONSE - CONDENSED
+
+The recommended architecture was to follow the existing project pattern rather than introduce a new design:
+
+- ReportingStructure.java: response model
+- ReportingStructureController.java: HTTP endpoint
+- ReportingStructureService.java: service contract
+- ReportingStructureServiceImpl.java: traversal/business logic
+- EmployeeRepository.java: reuse existing employee lookup
+- ReportingStructureServiceImplTest.java: automated verification
+
+The report count should be computed on demand because the requirement explicitly says not to persist ReportingStructure.
+
+Recursion was recommended because the reporting hierarchy can contain an unknown number of levels. Each direct-report reference may contain only employeeId, so the service should resolve the full Employee through EmployeeRepository before traversing the next level.
+
+A Set<String> of visited employee IDs was recommended to prevent duplicate counting and circular relationships from causing infinite recursion.
+
+======================================================================
+3. SECURITY AND SYSTEM-RISK REVIEW
+======================================================================
+
+MY PROMPT
+
+"Review my Task 1 implementation as if it were going through a lightweight production design review. Are there any security, resource-consumption, data-exposure, recursion, validation, or error-handling risks in the files I added? Which issues are important for this coding challenge, which are production concerns only, and what changes would improve the implementation without adding unnecessary complexity?"
+
+AI RESPONSE - CONDENSED
+
+The Task 1 design was considered appropriate for the scope of the challenge. Important observations included:
+
+- The visited-ID set protects against duplicate counting and circular traversal.
+- Extremely deep unique hierarchies could still exhaust the Java call stack. An iterative traversal or maximum depth would be stronger at production scale, but recursion is clear and reasonable for this challenge.
+- employeeId input could be validated more strictly for null, blank, length, or expected format.
+- Authentication and authorization are not included in the starter project. A production employee API should enforce object-level access control before returning reporting data.
+- Returning Employee directly satisfies the challenge, but a dedicated response DTO would provide tighter control over exposed fields in a larger production API.
+- Spring Data repository methods avoid manually constructing database queries, but input validation is still important.
+- 404 Not Found is more appropriate than allowing an unknown employee to cause a generic server error.
+- Generated build output, IDE settings, local JDK installations, and other machine-specific files should not be committed.
+
+======================================================================
+4. ARCHITECTURE AND CODE-QUALITY REVIEW
+======================================================================
+
+MY PROMPT
+
+"Evaluate the Task 1 class structure and naming for readability and maintainability. I want the implementation to look intentional in a code review. Are responsibilities separated correctly? Are the comments useful rather than repetitive? Is there a cleaner controller/service format I should consider while still remaining consistent with the starter project and expected endpoint behavior?"
+
+AI RESPONSE - CONDENSED
+
+The existing layering was appropriate:
+
+Controller -> Service -> Service Implementation -> EmployeeRepository
+
+The response model remains separate from Employee because numberOfReports is derived data. Constructor injection keeps dependencies explicit. Comments should focus on non-obvious behavior such as the recursion base case and visited-ID protection rather than narrating every line.
+
+Possible style improvements included a class-level request mapping and more descriptive service method naming. Those were considered optional because consistency with the starter project was also valuable.
+
+======================================================================
+5. CONCEPT CHECK
+======================================================================
+
+MY PROMPT
+
+"Challenge my understanding of Task 1. What concepts should I be able to explain in a technical interview or code review, and where might I be using something correctly without fully understanding why? In particular, verify my understanding of Spring bean discovery, dependency injection, service interfaces versus implementations, repository lookups, recursive base cases, visited sets, calculated versus persisted data, and unit versus integration testing."
+
+AI RESPONSE - CONDENSED
+
+Key concepts to understand and explain:
+
+- A service interface defines a contract; the implementation performs the work.
+- @Service makes the implementation discoverable as a Spring-managed bean.
+- Constructor injection lets Spring provide EmployeeRepository to the service.
+- Direct-report entries can be ID-only references, so repository lookup is necessary before recursively examining their reports.
+- Recursion requires a base case. An employee with no direct reports returns zero.
+- Set.add returns false for an already-present ID, making it useful for duplicate/cycle protection.
+- ReportingStructure is derived from current employee relationships and should not be persisted.
+- The controller should handle HTTP mapping while business logic remains in the service layer.
+- A SpringBootTest that exercises service, repository, application context, and HTTP behavior is closer to an integration test than a narrow unit test.
+
+======================================================================
+6. TEST STRATEGY
+======================================================================
+
+MY PROMPT
+
+"Design a focused Task 1 test strategy that proves both the recursive business logic and the REST behavior. Include a root employee with indirect reports, an intermediate employee, a leaf employee, an invalid employee ID, and an endpoint-level test. Explain what failure each case is intended to catch and keep the suite small enough for a coding challenge."
+
+AI RESPONSE - CONDENSED
+
+The resulting focused cases were:
+
+- John Lennon -> 4 reports: verifies direct plus indirect traversal.
+- Ringo Starr -> 2 reports: verifies an intermediate node.
+- Paul McCartney -> 0 reports: verifies the recursion base case.
+- Endpoint request -> HTTP 200 and expected reporting structure.
+- Invalid employee ID -> HTTP 404.
+
+======================================================================
+7. VERIFIED RESULT
+======================================================================
+
+Task 1 was implemented with:
+
+- ReportingStructure.java
+- ReportingStructureController.java
+- ReportingStructureService.java
+- ReportingStructureServiceImpl.java
+- ReportingStructureServiceImplTest.java
+
+Verified behavior:
+
+- Recursive direct and indirect report counting works.
+- Duplicate/cycle protection is present through visitedEmployeeIds.
+- Unknown employees return 404.
+- The test file is under src/test/java.
+- Gradle uses Java 17.
+- Five Task 1 tests passed.
+- The Gradle result was BUILD SUCCESSFUL.
+
+======================================================================
+8. DESIGN TAKEAWAY
+======================================================================
+
+The Task 1 solution intentionally extends the starter architecture instead of redesigning it. The controller remains thin, the service owns traversal logic, EmployeeRepository resolves stored employee data, and ReportingStructure remains calculated rather than persisted. The implementation adds defensive cycle protection and error handling while keeping production-scale concerns such as authorization, traversal limits, and dedicated response DTOs documented rather than overengineering the challenge.

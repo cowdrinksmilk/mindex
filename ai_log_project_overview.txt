@@ -1,0 +1,292 @@
+MINDEX CODE CHALLENGE - PROJECT OVERVIEW
+
+============================================================
+1. ORIGINAL PROJECT PROMPT
+============================================================
+
+A Spring Boot web application is provided with employee data. When the
+application starts, an in-memory Mongo database is loaded from a saved
+snapshot. Data can be read and changed while the application is running
+without changing the original snapshot.
+
+The application runs with:
+
+gradlew bootRun
+
+The project targets Java 17.
+
+Existing Employee endpoints:
+
+POST /employee
+GET  /employee/{id}
+PUT  /employee/{id}
+
+The ID used by these endpoints is the employeeId field.
+
+Task 1:
+Create a ReportingStructure type containing an employee and the total
+number of direct and indirect reports under that employee. Add a REST
+endpoint that calculates and returns the ReportingStructure for an
+employeeId. The calculated result should not be persisted.
+
+Task 2:
+Create a Compensation type containing at least salary and effectiveDate.
+Associate each Compensation with an Employee. Add REST endpoints to
+create and read Compensation using the persistence layer.
+
+Delivery:
+Upload the completed project to a publicly accessible Git repository.
+
+============================================================
+2. PROJECT PURPOSE
+============================================================
+
+This project is a Spring Boot REST API for managing employee information.
+The starter application already supports creating, reading, and updating
+employees. The coding challenge extends the system with:
+
+1. A calculated employee reporting structure.
+2. Persistent employee compensation information.
+
+============================================================
+3. ORIGINAL PROJECT STRUCTURE
+============================================================
+                  REST API
+                     │
+                     ▼
+               CONTROLLER
+         "What request came in?"
+                     │
+                     ▼
+                 SERVICE
+           "What should we do?"
+                     │
+                     ▼
+              SERVICE IMPL
+            "How do we do it?"
+                     │
+                     ▼
+                REPOSITORY
+        "Get/save database data"
+                     │
+                     ▼
+                  MONGODB
+
+mindex-code-challenge/
+|-- build.gradle
+|-- gradlew
+|-- gradlew.bat
+|-- README.md
+|-- gradle/
+|   `-- wrapper/
+|       `-- gradle-wrapper.properties
+`-- src/
+    |-- main/
+    |   |-- java/com/mindex/challenge/
+    |   |   |-- ChallengeApplication.java
+    |   |   |-- DataBootstrap.java
+    |   |   |-- config/
+    |   |   |   `-- MongoConfig.java
+    |   |   |-- controller/
+    |   |   |   `-- EmployeeController.java
+    |   |   |-- dao/
+    |   |   |   `-- EmployeeRepository.java
+    |   |   |-- data/
+    |   |   |   `-- Employee.java
+    |   |   `-- service/
+    |   |       |-- EmployeeService.java
+    |   |       `-- impl/
+    |   |           `-- EmployeeServiceImpl.java
+    |   `-- resources/
+    |       |-- application.properties
+    |       `-- static/
+    |           `-- employee_database.json
+    `-- test/
+        `-- java/com/mindex/challenge/
+            |-- ChallengeApplicationTests.java
+            |-- DataBootstrapTest.java
+            `-- service/impl/
+                `-- EmployeeServiceImplTest.java
+
+============================================================
+4. TECHNOLOGY
+============================================================
+
+- Java 17
+- Spring Boot
+- Spring Web
+- Spring Data MongoDB
+- In-memory MongoDB-compatible server
+- Gradle
+- JUnit
+
+Windows commands:
+
+Run the application:
+.\gradlew.bat bootRun
+
+Run all tests:
+.\gradlew.bat clean test
+
+============================================================
+5. SYSTEM ARCHITECTURE
+============================================================
+
+The application uses a layered architecture:
+
+HTTP Request
+    |
+    v
+Controller
+    |
+    v
+Service Interface
+    |
+    v
+Service Implementation
+    |
+    v
+Repository / DAO
+    |
+    v
+In-Memory MongoDB
+
+Controller:
+Receives HTTP requests, reads request data, calls a service, and returns
+JSON responses.
+
+Service Interface:
+Defines the operations available to the controller.
+
+Service Implementation:
+Contains the business logic, validation, calculations, and repository
+calls.
+
+Repository / DAO:
+Reads and writes data in MongoDB.
+
+Data Classes:
+Define the objects used by the application, such as Employee,
+ReportingStructure, and Compensation.
+
+============================================================
+6. STARTUP DATA FLOW
+============================================================
+
+employee_database.json
+    |
+    v
+DataBootstrap
+    |
+    v
+EmployeeRepository
+    |
+    v
+In-Memory MongoDB
+
+DataBootstrap reads employee_database.json when the application starts
+and inserts the employee records into the in-memory database. Restarting
+the application resets the database to the original snapshot.
+
+============================================================
+7. PROVIDED EMPLOYEE HIERARCHY
+============================================================
+
+John Lennon
+|-- Paul McCartney
+`-- Ringo Starr
+    |-- Pete Best
+    `-- George Harrison
+
+John has four total reports:
+
+- Paul and Ringo are direct reports.
+- Pete and George are indirect reports through Ringo.
+
+The directReports entries may contain only an employeeId. The complete
+Employee record must therefore be retrieved from EmployeeRepository when
+following the reporting hierarchy.
+
+============================================================
+8. TASK SUMMARY
+============================================================
+
+TASK 1 - REPORTING STRUCTURE
+
+Purpose:
+Calculate the total number of distinct direct and indirect reports under
+an employee.
+
+Main files:
+
+- ReportingStructure.java
+- ReportingStructureController.java
+- ReportingStructureService.java
+- ReportingStructureServiceImpl.java
+- ReportingStructureServiceImplTest.java
+
+Expected endpoint:
+
+GET /reportingStructure/{employeeId}
+
+Persistence:
+The ReportingStructure is calculated when requested and is not saved.
+
+TASK 2 - COMPENSATION
+
+Purpose:
+Create and retrieve compensation information for a specific employee.
+
+Main files:
+
+- Compensation.java
+- CompensationController.java
+- CompensationRepository.java
+- CompensationService.java
+- CompensationServiceImpl.java
+- CompensationServiceImplTest.java
+
+Expected operations:
+
+- Create Compensation
+- Read Compensation for an employee
+
+Persistence:
+Compensation must be saved to and retrieved from MongoDB.
+
+============================================================
+9. RECOMMENDED LOG ORGANIZATION
+============================================================
+
+Keep the overview separate from the detailed AI work logs:
+
+mindex-code-challenge/
+|-- project_overview.txt
+`-- ai_logs/
+    |-- task_1_reporting_structure_log.txt
+    `-- task_2_compensation_log.txt
+
+project_overview.txt:
+Contains only the original prompt, project structure, architecture, and a
+short summary of both tasks.
+
+task_1_reporting_structure_log.txt:
+Contains the Task 1 discussion, design decisions, code changes,
+troubleshooting, testing, final results, and commit information.
+
+task_2_compensation_log.txt:
+Contains the Task 2 discussion, design decisions, code changes,
+troubleshooting, testing, final results, and commit information.
+
+============================================================
+10. CURRENT STATUS
+============================================================
+
+Task 1:
+Implemented and tested successfully. The Task 1 Gradle test run ended
+with BUILD SUCCESSFUL.
+
+Task 2:
+Should be documented separately as work begins. The Task 2 log should
+not claim that an implementation or test passed until that work has
+actually been completed.
